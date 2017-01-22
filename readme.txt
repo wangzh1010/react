@@ -11,6 +11,8 @@ after one day
 when i was young , i listen to the radio.
 modify the file by A
 
+Waitin' for my favorite songs
+add by B
 
 When they played I'd sing along
 add by A
