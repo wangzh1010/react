@@ -1,32 +1,32 @@
-var _LazyMan = function(name) {
+var _LazyMan = function (name) {
     this.tasks = [];
     var self = this;
-    var fn = function() {
+    var fn = function () {
         console.log('hi this is ' + name);
         self.next();
     };
     this.tasks.push(fn);
-    setTimeout(function() {
+    setTimeout(function () {
         self.next();
     }, 0);
 };
-_LazyMan.prototype.next = function() {
+_LazyMan.prototype.next = function () {
     var fn = this.tasks.shift();
     fn && fn();
 };
-_LazyMan.prototype.eat = function(food) {
+_LazyMan.prototype.eat = function (food) {
     var self = this;
-    var fn = function() {
+    var fn = function () {
         console.log('eat ' + food + ' ~');
         self.next();
     };
     this.tasks.push(fn);
     return this;
 };
-_LazyMan.prototype.sleep = function(time) {
+_LazyMan.prototype.sleep = function (time) {
     var self = this;
-    var fn = function() {
-        setTimeout(function() {
+    var fn = function () {
+        setTimeout(function () {
             console.log('Wake up after ' + time);
             self.next();
         }, time * 1000);
@@ -34,10 +34,10 @@ _LazyMan.prototype.sleep = function(time) {
     this.tasks.push(fn);
     return this;
 };
-_LazyMan.prototype.sleepFirst = function(time) {
+_LazyMan.prototype.sleepFirst = function (time) {
     var self = this;
-    var fn = function() {
-        setTimeout(function() {
+    var fn = function () {
+        setTimeout(function () {
             console.log('Wake up after ' + time);
             self.next();
         }, time * 1000);
@@ -45,7 +45,7 @@ _LazyMan.prototype.sleepFirst = function(time) {
     this.tasks.unshift(fn);
     return this;
 };
-var LazyMan = function(name) {
+var LazyMan = function (name) {
     return new _LazyMan(name);
 };
 LazyMan('hank').sleepFirst(2).eat('dinner');
