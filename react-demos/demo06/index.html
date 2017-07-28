@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app"></div>
+    <script src="../lib/react.js"></script>
+    <script src="../lib/react-dom.js"></script>
+    <script src="../lib/browser.min.js"></script>
+    <script type="text/babel">
+        // 组件的属性可以接受任意值，字符串、对象、函数等等都可以。有时，我们需要一种机制，验证别人使用组件时，提供的参数是否符合要求。
+        // 组件类的PropTypes属性，就是用来验证组件实例的属性是否符合要求
+        // Mytitle组件有一个title属性。PropTypes 告诉 React，这个 title 属性是必须的，而且它的值必须是字符串。
+        // 如果我们设置 title 属性的值是一个数值。title属性就通不过验证了。控制台会显示一行错误信息。
+        // getDefaultProps 方法可以用来设置组件属性的默认值。
+        var Mytitle = React.createClass({
+            getDefaultProps:function(){
+                return{
+                    author:'wzh'
+                }
+            },
+            propTypes:{
+                title:React.PropTypes.string.isRequired,
+                time:React.PropTypes.number.isRequired
+            },
+            render:function(){
+                return <div>{this.props.title} - add by {this.props.author} - {this.props.time} </div>
+            }
+        });
+        var time = '2017/07/28';
+        ReactDOM.render(
+            <Mytitle title="this is my title" time={time}></Mytitle>,
+            document.getElementById('app')
+        )
+    </script>
+</body>
+
+</html>

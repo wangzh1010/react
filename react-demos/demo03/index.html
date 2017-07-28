@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app">
+
+    </div>
+    <script src="../lib/react.js"></script>
+    <script src="../lib/react-dom.js"></script>
+    <script src="../lib/browser.min.js"></script>
+
+    <script type="text/babel">
+        // JSX 允许直接在模板插入 JavaScript 变量。如果这个变量是一个数组，则会展开这个数组的所有成员
+        let ary= [
+            <h1>hello React!</h1>,
+            <h1>React is awesome</h1>
+        ];
+
+        ReactDOM.render(
+            <div> { ary } </div>,
+            document.getElementById('app')
+        )
+        
+    </script>
+
+</body>
+
+</html>

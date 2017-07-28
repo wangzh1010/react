@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <div id="app"></div>
+    <script src="../lib/react.js"></script>
+    <script src="../lib/react-dom.js"></script>
+    <script src="../lib/browser.min.js"></script>
+    <script type="text/babel">
+        // this.props 对象的属性与组件的属性一一对应，但是有一个例外，就是 this.props.children 属性。它表示组件的所有子节点
+        // Notice 组件有两个 span 子节点，它们都可以通过 this.props.children 读取
+        // this.props.children 的值有三种可能：
+        // 如果当前组件没有子节点，它就是 undefined ;
+        // 如果有一个子节点，数据类型是 object ；
+        // 如果有多个子节点，数据类型就是 array 。
+        // React 提供一个工具方法 React.Children 来处理 this.props.children 。
+        // 我们可以用 React.Children.map 来遍历子节点，而不用担心 this.props.children 的数据类型是 undefined 还是 object。
+        // 官方文档：https://facebook.github.io/react/docs/top-level-api.html#react.children
+        var Notice = React.createClass({
+            render:function () {
+                return <ol>
+                    {
+                        React.Children.map(this.props.children,function(child){
+                            return <li>{child}</li>
+                        })
+                    }
+                </ol>
+            }
+        })
+
+        ReactDOM.render(
+            <Notice>
+                <span>Hello</span>
+                <span>React</span>
+            </Notice>,
+            document.getElementById('app')
+        )
+    </script>
+
+</body>
+
+</html>

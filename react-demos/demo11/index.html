@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app"></div>
+    <script src="../lib/react.js"></script>
+    <script src="../lib/react-dom.js"></script>
+    <script src="../lib/browser.min.js"></script>
+    <script src="../lib/jquery.min.js"></script>
+    <script type="text/babel">
+        // 组件的数据来源，通常是通过 Ajax 请求从服务器获取，
+        // 可以使用 componentDidMount 方法设置 Ajax 请求，等到请求成功，再用 this.setState 方法重新渲染 UI 
+        // 使用 jQuery 完成 Ajax 请求，这是为了便于说明。React 本身没有任何依赖，完全可以不用jQuery，而使用其他库。
+        var Model = React.createClass({
+            getInitialState:function(){
+                return{
+                    username:'',
+                    lastGistUrl:''
+                }
+            },
+            componentDidMount:function(){
+                var self = this;
+                $.get(this.props.ajaxUrl,function(resp){
+                    var lastGist = resp[0]
+                    if(self.isMounted()){
+                        self.setState({
+                            username:lastGist.owner.login,
+                            lastGistUrl:lastGist.html_url
+                        })
+                    }
+                })
+            },
+            render:function(){                
+                return <div>
+                    {this.state.username}'s last gist is <a href={this.state.lastGistUrl}>here</a>
+                </div>
+            }
+        })
+
+        ReactDOM.render(
+            <Model ajaxUrl="https://api.github.com/users/octocat/gists"></Model>,
+            document.getElementById('app')
+        )
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app"></div>
+    <script src="../lib/react.js"></script>
+    <script src="../lib/react-dom.js"></script>
+    <script src="../lib/browser.min.js"></script>
+    <script type="text/babel">
+        // 组件免不了要与用户互动，React 的一大创新，就是将组件看成是一个状态机，一开始有一个初始状态，然后用户互动，导致状态变化，从而触发重新渲染 UI 
+        // getInitialState 方法用于定义初始状态，也就是一个对象，这个对象可以通过 this.state 属性读取。
+        // 当用户点击组件，导致状态变化，this.setState 方法就修改状态值，每次修改以后，自动调用 this.render 方法，再次渲染组件。
+        // 由于 this.props 和 this.state 都用于描述组件的特性，可能会产生混淆。
+        // 一个简单的区分方法是，this.props 表示那些一旦定义，就不再改变的特性，而 this.state 是会随着用户互动而产生变化的特性。
+        var LinkBtn = React.createClass({
+            getInitialState:function(){
+                return{
+                    like:false
+                }
+            },
+            onButtonClick:function(){                
+                this.setState({like:!this.state.like})
+            },
+            render:function(){
+                var text = this.state.like? 'like' : 'haven\'t like';
+                return <div>
+                    <p onClick={this.onButtonClick}>
+                        You {text} this. Click to toggle
+                    </p>
+                </div>
+            }
+        })
+
+        ReactDOM.render(
+            <LinkBtn></LinkBtn>,
+            document.getElementById('app')
+        )
+    </script>
+</body>
+
+</html>

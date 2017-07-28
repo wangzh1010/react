@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+    .proj{
+        margin: 0px 10px;
+    }
+</style>
+</head>
+
+<body>
+    <div id="app"></div>
+    <script src="../lib/react.js"></script>
+    <script src="../lib/react-dom.js"></script>
+    <script src="../lib/browser.min.js"></script>
+    <script src="../lib/jquery.min.js"></script>
+    <script type="text/babel">
+        // 组件的数据来源，通常是通过 Ajax 请求从服务器获取，
+        // 可以使用 componentDidMount 方法设置 Ajax 请求，等到请求成功，再用 this.setState 方法重新渲染 UI 
+        // 使用 jQuery 完成 Ajax 请求，这是为了便于说明。React 本身没有任何依赖，完全可以不用jQuery，而使用其他库。
+        var Model = React.createClass({
+            getInitialState:function(){
+                return{
+                    loading:true,
+                    error:'',
+                    data:''
+                }
+            },
+            componentDidMount:function(){
+                this.props.promise.then(
+                    value=>this.setState({loading:false,data:value}),
+                    error=>this.setState({loading:false,error:error})
+                );
+            },
+            render:function(){                
+                if(this.state.loading){
+                    return <div>loading data...</div>
+                }else if(this.state.error !== ''){
+                    return <div>Error : this.state.error.message</div>
+                }else{
+                    var items = this.state.data.items;
+                    var lis = items.map((item,index)=>{
+                        return <li key={index}>
+                            <a href={item.html_url}>{item.name}</a> 
+                            {item.stargazers_count} stars <br/>
+                            {item.description}
+                        </li>
+                    });
+                    return <div>
+                            <h1>Most Popular JavaScript Projects in Github</h1>
+                            <ol>{lis}</ol>
+                        </div>
+                }
+            }
+        })
+
+        ReactDOM.render(
+            <Model promise={$.getJSON('https://api.github.com/search/repositories?q=javascript&sort=stars')}></Model>,
+            document.getElementById('app')
+        )
+    </script>
+</body>
+
+</html>
