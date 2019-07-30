@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Intersection Observer</title>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+    <style type="text/css">
+    body {
+        margin: 0 0;
+    }
+
+    .box {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .box img {
+        width: 390px;
+        height: 390px;
+        margin: 10px auto;
+        object-fit: cover;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="box">
+        <img src="./default.jpg" data-src="./1.jpg">
+        <img src="./default.jpg" data-src="./2.jpg">
+        <img src="./default.jpg" data-src="./3.jpg">
+        <img src="./default.jpg" data-src="./4.jpg">
+        <img src="./default.jpg" data-src="./5.jpg">
+        <img src="./default.jpg" data-src="./6.jpg">
+        <img src="./default.jpg" data-src="./7.jpg">
+        <img src="./default.jpg" data-src="./8.jpg">
+    </div>
+    <script type="text/javascript">
+    let observer = new IntersectionObserver((entries, observer) => {
+        console.log(entries, observer)
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.src = entry.target.dataset.src;
+                observer.unobserve(entry.target)
+            }
+        })
+
+    }, { threshold: 0.1 })
+    Array.from(document.querySelectorAll('img')).forEach(img => {
+        observer.observe(img)
+    })
+    </script>
+</body>
+
+</html>
