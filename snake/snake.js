@@ -1,15 +1,14 @@
 document.addEventListener('DOMContentLoaded', DOMReady);
 
-const MAX_WIDTH = 90;
-const MAX_HEIGHT = 90;
+const MAX_WIDTH = 270;
+const MAX_HEIGHT = 270;
 const CELL_SIZE = 30;
 let cxt;
 let code = 0;
-let startX = 0;
-let startY = 0;
+let startX = Math.floor(MAX_WIDTH / CELL_SIZE / 2) * CELL_SIZE;
+let startY = Math.floor(MAX_HEIGHT / CELL_SIZE / 2) * CELL_SIZE;
 let snake = [];
 let foods = [];
-let running = false;
 let over = false;
 
 function DOMReady() {
@@ -27,7 +26,7 @@ function start() {
         return;
     }
     let timer = setTimeout(() => {
-        !over && clear();
+        clear();
         clearTimeout(timer);
         timer = null;
         run();
@@ -46,19 +45,15 @@ function drawSnake() {
     cxt.fillStyle = 'RGBA(255,120,120,1)';
     switch (code) {
         case 37:
-            running = true;
             moveLeft();
             break;
         case 38:
-            running = true;
             moveUp();
             break;
         case 39:
-            running = true;
             moveRight();
             break;
         case 40:
-            running = true;
             moveDown();
             break;
         default:
@@ -68,9 +63,6 @@ function drawSnake() {
 }
 
 function init() {
-    startX = Math.floor(MAX_WIDTH / CELL_SIZE / 2) * CELL_SIZE;
-    startY = Math.floor(MAX_HEIGHT / CELL_SIZE / 2) * CELL_SIZE;
-    // cxt.fillStyle = 'RGBA(255,120,120,1)';
     cxt.fillRect(startX, startY, CELL_SIZE, CELL_SIZE);
     cxt.strokeRect(startX, startY, CELL_SIZE, CELL_SIZE);
     if (!snake.length) {
@@ -79,7 +71,6 @@ function init() {
 }
 
 function clear() {
-    console.log('clear...')
     snake.forEach(snippet => {
         cxt.clearRect(snippet.x, snippet.y, CELL_SIZE, CELL_SIZE);
         cxt.strokeRect(snippet.x, snippet.y, CELL_SIZE, CELL_SIZE);
@@ -89,85 +80,76 @@ function clear() {
 function moveUp() {
     if (startY > 0) {
         startY -= CELL_SIZE;
-        updateLeftUp();
-        snake[0].y -= CELL_SIZE;
+        update();
         feed();
-        console.log('moveUp');
     } else {
-        console.log('boom..');
         over = true;
     }
-    snake.forEach(snippet => {
-        cxt.fillRect(snippet.x, snippet.y, CELL_SIZE, CELL_SIZE);
-        cxt.strokeRect(snippet.x, snippet.y, CELL_SIZE, CELL_SIZE);
-    });
+    redrawSnake();
 }
 
 function moveDown() {
     if (startY < MAX_HEIGHT - CELL_SIZE) {
         startY += CELL_SIZE;
-        updateRightDown();
-        snake[snake.length - 1].y += CELL_SIZE;
+        update();
         feed();
-        console.log('moveDown');
     } else {
-        console.log('boom..');
         over = true;
     }
-    snake.forEach(snippet => {
-        cxt.fillRect(snippet.x, snippet.y, CELL_SIZE, CELL_SIZE);
-        cxt.strokeRect(snippet.x, snippet.y, CELL_SIZE, CELL_SIZE);
-    });
+    redrawSnake();
 }
 
 function moveLeft() {
     if (startX > 0) {
         startX -= CELL_SIZE;
-        updateLeftUp();
-        snake[0].x -= CELL_SIZE;
+        update();
         feed();
-        console.log('moveLeft');
     } else {
-        console.log('boom...');
         over = true;
     }
-    snake.forEach(snippet => {
-        cxt.fillRect(snippet.x, snippet.y, CELL_SIZE, CELL_SIZE);
-        cxt.strokeRect(snippet.x, snippet.y, CELL_SIZE, CELL_SIZE);
-    });
+    console.log(JSON.stringify(snake))
+    redrawSnake();
 }
 
 function moveRight() {
     if (startX < MAX_WIDTH - CELL_SIZE) {
         startX += CELL_SIZE;
-        updateRightDown();
-        snake[snake.length - 1].x += CELL_SIZE;
+        update();
         feed();
-        console.log('moveRight');
     } else {
-        console.log('boom...');
         over = true;
     }
-    snake.forEach(snippet => {
-        cxt.fillRect(snippet.x, snippet.y, CELL_SIZE, CELL_SIZE);
-        cxt.strokeRect(snippet.x, snippet.y, CELL_SIZE, CELL_SIZE);
-    });
+    redrawSnake();
 }
 
-function updateLeftUp() {
-    for (let i = snake.length - 1; i > 0; i--) {
-        let snippet = snake[i];
-        snippet.x = snake[i - 1].x;
-        snippet.y = snake[i - 1].y;
-    }
-}
-
-function updateRightDown() {
+function update() {
     for (let i = 0; i < snake.length - 1; i++) {
         let snippet = snake[i];
         snippet.x = snake[i + 1].x;
         snippet.y = snake[i + 1].y;
     }
+    switch (code) {
+        case 37:
+            snake[snake.length - 1].x -= CELL_SIZE;
+            break;
+        case 38:
+            snake[snake.length - 1].y -= CELL_SIZE;
+            break;
+        case 39:
+            snake[snake.length - 1].x += CELL_SIZE;
+            break;
+        case 40:
+            snake[snake.length - 1].y += CELL_SIZE;
+            break;
+    }
+}
+
+function redrawSnake(){
+    clear();
+    snake.forEach(snippet => {
+        cxt.fillRect(snippet.x, snippet.y, CELL_SIZE, CELL_SIZE);
+        cxt.strokeRect(snippet.x, snippet.y, CELL_SIZE, CELL_SIZE);
+    });
 }
 
 function feed() {
@@ -227,7 +209,8 @@ function drawFood() {
         clearTimeout(timer);
         timer = null;
         let [x, y] = createFood();
-        if (x === null && y === null) {
+        if (over || (x === null && y === null)) {
+            clearFood();
             return;
         }
         cxt.beginPath();
@@ -238,7 +221,6 @@ function drawFood() {
         cxt.fillStyle = '#8bc34a';
         cxt.fill();
         foods.push({ x, y });
-        console.log(foods)
         drawFood();
     }, 1500)
 }
@@ -246,19 +228,31 @@ function drawFood() {
 function createFood() {
     let x, y;
     let arr = [...foods, ...snake];
-    if (arr.length >= MAX_WIDTH / CELL_SIZE * MAX_HEIGHT / CELL_SIZE) {
+    if (arr.length >= MAX_WIDTH / CELL_SIZE * MAX_HEIGHT / CELL_SIZE * 0.3) {
         return [null, null];
     }
     while (true) {
-        x = Math.floor(Math.random() * (MAX_WIDTH / CELL_SIZE - 1)) * CELL_SIZE;
-        y = Math.floor(Math.random() * (MAX_HEIGHT / CELL_SIZE - 1)) * CELL_SIZE;
-        if (arr.every(used => {
-                return used.x !== x || used.y !== y
-            })) {
+        let empty = true;
+        x = Math.floor(Math.random() * (MAX_WIDTH / CELL_SIZE)) * CELL_SIZE;
+        y = Math.floor(Math.random() * (MAX_HEIGHT / CELL_SIZE)) * CELL_SIZE;
+        for (let i = 0; i < arr.length; i++) {
+            if (arr[i].x === x && arr[i].y === y) {
+                empty = false;
+                break;
+            }
+        }
+        if (empty) {
             break;
         }
-    }
+    }    
     return [x, y];
+}
+
+function clearFood() {
+    foods.forEach(food => {
+        cxt.clearRect(food.x, food.y, CELL_SIZE, CELL_SIZE);
+        cxt.strokeRect(food.x, food.y, CELL_SIZE, CELL_SIZE);
+    });
 }
 
 function handleKeyDown() {
