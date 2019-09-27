@@ -1,28 +1,102 @@
 document.addEventListener('DOMContentLoaded', DOMReady);
 
-const MAX_WIDTH = 270;
-const MAX_HEIGHT = 270;
+const MAX_WIDTH = 750;
+const MAX_HEIGHT = 750;
 const CELL_SIZE = 30;
 let cxt;
 let code = 0;
-let startX = Math.floor(MAX_WIDTH / CELL_SIZE / 2) * CELL_SIZE;
-let startY = Math.floor(MAX_HEIGHT / CELL_SIZE / 2) * CELL_SIZE;
+let startX = 0;
+let startY = 0;
 let snake = [];
 let foods = [];
 let over = false;
+let opening = true;
+let full = false;
+const SPACE = CELL_SIZE * 9;
 
 function DOMReady() {
     const canvas = document.getElementById('box');
     cxt = canvas.getContext('2d');
-    handleKeyDown();
+    cxt.translate(0.5, 0.5);
+    openingShow();
+}
+
+function openingShow() {
+    let x = SPACE;
+    let y = Math.floor(MAX_HEIGHT / CELL_SIZE / 2) * CELL_SIZE;
+    let timer = setInterval(() => {
+        if (x < MAX_WIDTH - SPACE) {
+            cxt.strokeRect(x, y, CELL_SIZE, CELL_SIZE);
+            x += CELL_SIZE;
+        } else {
+            clearInterval(timer);
+            timer = null;
+            autoPlay();
+        }
+    }, 100);
+}
+
+function autoPlay() {
+    startX = SPACE;
+    startY = Math.floor(MAX_HEIGHT / CELL_SIZE / 2) * CELL_SIZE;
+    start();
+    autoEat(startX + CELL_SIZE, startY);
+}
+
+function autoEat(x, y) {
+    if (x < MAX_WIDTH - CELL_SIZE * 8) {
+        lure(x, y).then(() => {
+            let timer = setTimeout(() => {
+                clearTimeout(timer);
+                timer = null;
+                moveRight();
+                autoEat(x + CELL_SIZE, y);
+            }, 100);
+        })
+    } else {
+        full = true;
+    }
+}
+
+function lure(x, y) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            cxt.beginPath();
+            let circleX = x + CELL_SIZE / 2;
+            let circleY = y + CELL_SIZE / 2;
+            cxt.arc(circleX, circleY, 9, 0, Math.PI * 2);
+            cxt.fillStyle = '#8bc34a';
+            cxt.fill();
+            foods.push({ x, y });
+            resolve();
+        }, 500);
+    });
+}
+
+
+function startGame() {
+    over = true;
+    cxt.fillStyle = '#ffffff';
+    cxt.fillRect(0, 0, MAX_WIDTH, MAX_HEIGHT);
+    snake = [];
+    foods = [];
+    startX = Math.floor(MAX_WIDTH / CELL_SIZE / 2) * CELL_SIZE;
+    startY = Math.floor(MAX_HEIGHT / CELL_SIZE / 2) * CELL_SIZE;
     drawPanel();
     drawFood();
     start();
+    over = false;
 }
 
 function start() {
     drawSnake();
+    if (opening && full) {
+        clearSanke(1);
+        return;
+    }
     if (over) {
+        clearFood();
+        clearSanke(0);
         return;
     }
     let timer = setTimeout(() => {
@@ -63,11 +137,10 @@ function drawSnake() {
 }
 
 function init() {
-    cxt.fillRect(startX, startY, CELL_SIZE, CELL_SIZE);
-    cxt.strokeRect(startX, startY, CELL_SIZE, CELL_SIZE);
     if (!snake.length) {
         snake.push({ x: startX, y: startY });
     }
+    redrawSnake();
 }
 
 function clear() {
@@ -78,10 +151,10 @@ function clear() {
 }
 
 function moveUp() {
-    if (startY > 0) {
+    if (startY > 0 && !mbius()) {
         startY -= CELL_SIZE;
-        update();
         feed();
+        update();
     } else {
         over = true;
     }
@@ -89,10 +162,10 @@ function moveUp() {
 }
 
 function moveDown() {
-    if (startY < MAX_HEIGHT - CELL_SIZE) {
+    if (startY < MAX_HEIGHT - CELL_SIZE && !mbius()) {
         startY += CELL_SIZE;
-        update();
         feed();
+        update();
     } else {
         over = true;
     }
@@ -100,56 +173,25 @@ function moveDown() {
 }
 
 function moveLeft() {
-    if (startX > 0) {
+    if (startX > 0 && !mbius()) {
         startX -= CELL_SIZE;
-        update();
         feed();
+        update();
     } else {
         over = true;
     }
-    console.log(JSON.stringify(snake))
     redrawSnake();
 }
 
 function moveRight() {
-    if (startX < MAX_WIDTH - CELL_SIZE) {
+    if (startX < MAX_WIDTH - CELL_SIZE && !mbius()) {
         startX += CELL_SIZE;
-        update();
         feed();
+        update();
     } else {
         over = true;
     }
     redrawSnake();
-}
-
-function update() {
-    for (let i = 0; i < snake.length - 1; i++) {
-        let snippet = snake[i];
-        snippet.x = snake[i + 1].x;
-        snippet.y = snake[i + 1].y;
-    }
-    switch (code) {
-        case 37:
-            snake[snake.length - 1].x -= CELL_SIZE;
-            break;
-        case 38:
-            snake[snake.length - 1].y -= CELL_SIZE;
-            break;
-        case 39:
-            snake[snake.length - 1].x += CELL_SIZE;
-            break;
-        case 40:
-            snake[snake.length - 1].y += CELL_SIZE;
-            break;
-    }
-}
-
-function redrawSnake(){
-    clear();
-    snake.forEach(snippet => {
-        cxt.fillRect(snippet.x, snippet.y, CELL_SIZE, CELL_SIZE);
-        cxt.strokeRect(snippet.x, snippet.y, CELL_SIZE, CELL_SIZE);
-    });
 }
 
 function feed() {
@@ -163,27 +205,86 @@ function feed() {
         }
     }
     if (eat) {
+        let tail = snake[snake.length - 1];
         switch (code) {
             case 37:
-                snake = [...snake, { x: (startX + CELL_SIZE), y: startY }];
+                snake.push({ x: tail.x + CELL_SIZE, y: tail.y });
                 break;
             case 38:
-                snake = [...snake, { x: startX, y: (startY + CELL_SIZE) }];
+                snake.push({ x: tail.x, y: tail.y + CELL_SIZE });
                 break;
             case 39:
-                snake = [{ x: (startX - CELL_SIZE), y: startY }, ...snake];
+                snake.push({ x: tail.x - CELL_SIZE, y: tail.y });
                 break;
             case 40:
-                snake = [{ x: startX, y: (startY - CELL_SIZE) }, ...snake];
+                snake.push({ x: tail.x, y: tail.y - CELL_SIZE });
+                break;
+            default:
+                snake.push({ x: tail.x - CELL_SIZE, y: tail.y });
                 break;
         }
         foods.splice(i, 1);
     }
 }
 
+function update() {
+    for (let i = snake.length - 1; i > 0; i--) {
+        snake[i].x = snake[i - 1].x;
+        snake[i].y = snake[i - 1].y;
+    }
+    switch (code) {
+        case 37:
+            snake[0].x -= CELL_SIZE;
+            break;
+        case 38:
+            snake[0].y -= CELL_SIZE;
+            break;
+        case 39:
+            snake[0].x += CELL_SIZE;
+            break;
+        case 40:
+            snake[0].y += CELL_SIZE;
+            break;
+        default:
+            snake[0].x += CELL_SIZE;
+            break;
+    }
+}
+
+function mbius() {
+    let x, y;
+    let head = snake[0];
+    switch (code) {
+        case 37:
+            x = head.x - CELL_SIZE;
+            y = head.y;
+            break;
+        case 38:
+            x = head.x;
+            y = head.y - CELL_SIZE;
+            break;
+        case 39:
+            x = head.x + CELL_SIZE;
+            y = head.y;
+            break;
+        case 40:
+            x = head.x;
+            y = head.y + CELL_SIZE;
+            break;
+    }
+    return snake.some(snippet => {
+        return snippet.x === x && snippet.y === y
+    });
+}
+
+function redrawSnake() {
+    snake.forEach(snippet => {
+        cxt.fillRect(snippet.x, snippet.y, CELL_SIZE, CELL_SIZE);
+        cxt.strokeRect(snippet.x, snippet.y, CELL_SIZE, CELL_SIZE);
+    });
+}
+
 function drawPanel() {
-    cxt.translate(0.5, 0.5);
-    cxt.lineWidth = 1;
     let nums = MAX_WIDTH / CELL_SIZE + 1;
     cxt.beginPath();
     drawLine('H', nums);
@@ -209,8 +310,11 @@ function drawFood() {
         clearTimeout(timer);
         timer = null;
         let [x, y] = createFood();
-        if (over || (x === null && y === null)) {
-            clearFood();
+        if (over) {
+            return;
+        }
+        if (x === null && y === null) {
+            drawFood();
             return;
         }
         cxt.beginPath();
@@ -222,15 +326,15 @@ function drawFood() {
         cxt.fill();
         foods.push({ x, y });
         drawFood();
-    }, 1500)
+    }, 1500);
 }
 
 function createFood() {
-    let x, y;
-    let arr = [...foods, ...snake];
-    if (arr.length >= MAX_WIDTH / CELL_SIZE * MAX_HEIGHT / CELL_SIZE * 0.3) {
+    if (foods.length >= MAX_WIDTH / CELL_SIZE * MAX_HEIGHT / CELL_SIZE * 0.3) {
         return [null, null];
     }
+    let x, y;
+    let arr = [...foods, ...snake];
     while (true) {
         let empty = true;
         x = Math.floor(Math.random() * (MAX_WIDTH / CELL_SIZE)) * CELL_SIZE;
@@ -244,7 +348,7 @@ function createFood() {
         if (empty) {
             break;
         }
-    }    
+    }
     return [x, y];
 }
 
@@ -255,8 +359,41 @@ function clearFood() {
     });
 }
 
+function clearSanke(len) {
+    if (snake.length > len) {
+        let timer = setTimeout(() => {
+            let snippet = snake[0];
+            cxt.clearRect(snippet.x, snippet.y, CELL_SIZE, CELL_SIZE);
+            cxt.strokeRect(snippet.x, snippet.y, CELL_SIZE, CELL_SIZE);
+            clearTimeout(timer);
+            timer = null;
+            snake.shift();
+            clearSanke(len);
+        }, 100);
+    } else {
+        if (len > 0) {
+            full = false;
+            start();
+            cxt.font = '20px serif';
+            let txt = 'Press Enter Start Game !';
+            let metrics = cxt.measureText(txt);
+            cxt.fillText(txt, Math.floor((MAX_WIDTH - metrics.width) / 2), (Math.floor(MAX_HEIGHT / CELL_SIZE / 2) + 3) * CELL_SIZE, MAX_WIDTH);
+            handleKeyDown();
+        }
+    }
+}
+
 function handleKeyDown() {
     document.addEventListener('keydown', e => {
-        code = e.keyCode || e.which;
+        let keyCode = e.keyCode || e.which;
+        if (opening) {
+            if (keyCode === 13) {
+                opening = false;
+                startGame();
+            }
+        } else {
+            code = keyCode;
+        }
+        console.log(code);
     });
 }
