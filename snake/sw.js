@@ -3,9 +3,9 @@ self.addEventListener('install', (e) => {
     console.log('sw installed');
     e.waitUntil(caches.open(cacheName).then(cache => {
         return cache.addAll([
-            '/',
-            '/index.html',
-            '/snake.js'
+            '/moonlight/snake/',
+            '/moonlight/snake/index.html',
+            '/moonlight/snake/snake.js'
         ]);
     }));
     self.skipWaiting();
