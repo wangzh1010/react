@@ -5,7 +5,7 @@ self.addEventListener('install', (e) => {
         return cache.addAll([
             '/',
             '/index.html',
-            '/snale.js'
+            '/snake.js'
         ]);
     }));
     self.skipWaiting();
