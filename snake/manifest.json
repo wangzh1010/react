@@ -2,11 +2,11 @@
     "name": "Snake",
     "short_name": "Snake",
     "display": "standalone",
-    "start_url": "/snake/index.html",
+    "start_url": "/moonlight/snake/index.html",
     "background_color": "#fff",
     "theme_color": "#3eaf7c",
     "icons": [{
-        "src": "/snake/icon.png",
+        "src": "/moonlight/snake/icon.png",
         "sizes": "144x144",
         "type": "image/png"
     }]
