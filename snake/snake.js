@@ -31,88 +31,87 @@ function openingShow() {
         } else {
             clearInterval(timer);
             timer = null;
-            autoPlay();
+            startX = SPACE;
+            startY = Math.floor(MAX_HEIGHT / CELL_SIZE / 2) * CELL_SIZE;
+            run();
+            autoEat(startX + CELL_SIZE, startY);
         }
     }, 100);
 }
 
-function autoPlay() {
-    startX = SPACE;
-    startY = Math.floor(MAX_HEIGHT / CELL_SIZE / 2) * CELL_SIZE;
-    start();
-    autoEat(startX + CELL_SIZE, startY);
-}
-
 function autoEat(x, y) {
-    if (x < MAX_WIDTH - CELL_SIZE * 8) {
-        lure(x, y).then(() => {
-            let timer = setTimeout(() => {
-                clearTimeout(timer);
-                timer = null;
-                moveRight();
-                autoEat(x + CELL_SIZE, y);
-            }, 100);
-        })
-    } else {
-        full = true;
+    if (x >= MAX_WIDTH - SPACE) {
+        over = true;
+        return;
     }
-}
-
-function lure(x, y) {
-    return new Promise((resolve, reject) => {
-        setTimeout(() => {
-            cxt.beginPath();
-            let circleX = x + CELL_SIZE / 2;
-            let circleY = y + CELL_SIZE / 2;
-            cxt.arc(circleX, circleY, 9, 0, Math.PI * 2);
-            cxt.fillStyle = '#8bc34a';
-            cxt.fill();
+    new Promise((resolve, reject) => {
+        let timer = setTimeout(() => {
+            clearTimeout(timer);
+            timer = null;
+            drawCircle(x, y);
             foods.push({ x, y });
             resolve();
         }, 500);
+    }).then(() => {
+        let timer = setTimeout(() => {
+            clearTimeout(timer);
+            timer = null;
+            moveRight();
+            autoEat(x + CELL_SIZE, y);
+        }, 300);
     });
 }
 
-
 function startGame() {
-    over = true;
     cxt.fillStyle = '#ffffff';
     cxt.fillRect(0, 0, MAX_WIDTH, MAX_HEIGHT);
+    code = 0;
+    over = false;
     snake = [];
     foods = [];
     startX = Math.floor(MAX_WIDTH / CELL_SIZE / 2) * CELL_SIZE;
     startY = Math.floor(MAX_HEIGHT / CELL_SIZE / 2) * CELL_SIZE;
     drawPanel();
     drawFood();
-    start();
-    over = false;
 }
 
-function start() {
+function run() {
     drawSnake();
-    if (opening && full) {
-        clearSanke(1);
+    if (opening && over) {
+        rollback().then(() => {
+            over = false;
+            startX = SPACE;
+            startY = Math.floor(MAX_HEIGHT / CELL_SIZE / 2) * CELL_SIZE;
+            run();
+            cxt.font = '20px serif';
+            let txt = 'Press Enter To Start !';
+            let metrics = cxt.measureText(txt);
+            cxt.fillText(txt, Math.floor((MAX_WIDTH - metrics.width) / 2), (Math.floor(MAX_HEIGHT / CELL_SIZE / 2) + 3) * CELL_SIZE, MAX_WIDTH);
+            handleKeyDown();
+        });
         return;
     }
     if (over) {
         clearFood();
-        clearSanke(0);
+        rollback().then(() => {
+            gameOver();
+        });
         return;
     }
-    let timer = setTimeout(() => {
-        clear();
-        clearTimeout(timer);
-        timer = null;
-        run();
-    }, 300);
-}
-
-function run() {
-    let timer = setInterval(() => {
-        clearTimeout(timer);
-        timer = null;
-        start();
-    }, 300);
+    new Promise((resolve, reject) => {
+        let timer = setTimeout(() => {
+            clearTimeout(timer);
+            timer = null;
+            clear();
+            resolve();
+        }, 200);
+    }).then(() => {
+        let timer = setInterval(() => {
+            clearTimeout(timer);
+            timer = null;
+            run();
+        }, 200);
+    });
 }
 
 function drawSnake() {
@@ -141,6 +140,13 @@ function init() {
         snake.push({ x: startX, y: startY });
     }
     redrawSnake();
+}
+
+function redrawSnake() {
+    snake.forEach(snippet => {
+        cxt.fillRect(snippet.x, snippet.y, CELL_SIZE, CELL_SIZE);
+        cxt.strokeRect(snippet.x, snippet.y, CELL_SIZE, CELL_SIZE);
+    });
 }
 
 function clear() {
@@ -277,13 +283,6 @@ function mbius() {
     });
 }
 
-function redrawSnake() {
-    snake.forEach(snippet => {
-        cxt.fillRect(snippet.x, snippet.y, CELL_SIZE, CELL_SIZE);
-        cxt.strokeRect(snippet.x, snippet.y, CELL_SIZE, CELL_SIZE);
-    });
-}
-
 function drawPanel() {
     let nums = MAX_WIDTH / CELL_SIZE + 1;
     cxt.beginPath();
@@ -317,16 +316,20 @@ function drawFood() {
             drawFood();
             return;
         }
-        cxt.beginPath();
-        let circleX = x + CELL_SIZE / 2;
-        let circleY = y + CELL_SIZE / 2;
         let radius = Math.ceil(Math.random() * 6) + 6;
-        cxt.arc(circleX, circleY, radius, 0, Math.PI * 2);
-        cxt.fillStyle = '#8bc34a';
-        cxt.fill();
+        drawCircle(x, y, radius);
         foods.push({ x, y });
         drawFood();
     }, 1500);
+}
+
+function drawCircle(x, y, radius = 9) {
+    cxt.beginPath();
+    let circleX = x + CELL_SIZE / 2;
+    let circleY = y + CELL_SIZE / 2;
+    cxt.arc(circleX, circleY, radius, 0, Math.PI * 2);
+    cxt.fillStyle = '#8bc34a';
+    cxt.fill();
 }
 
 function createFood() {
@@ -359,28 +362,27 @@ function clearFood() {
     });
 }
 
-function clearSanke(len) {
-    if (snake.length > len) {
-        let timer = setTimeout(() => {
+function rollback() {
+    return new Promise((resolve, reject) => {
+        let timer = setInterval(() => {
+            if (!snake.length) {
+                clearInterval(timer);
+                timer = null;
+                return resolve();
+            }
             let snippet = snake[0];
             cxt.clearRect(snippet.x, snippet.y, CELL_SIZE, CELL_SIZE);
             cxt.strokeRect(snippet.x, snippet.y, CELL_SIZE, CELL_SIZE);
-            clearTimeout(timer);
-            timer = null;
             snake.shift();
-            clearSanke(len);
         }, 100);
-    } else {
-        if (len > 0) {
-            full = false;
-            start();
-            cxt.font = '20px serif';
-            let txt = 'Press Enter Start Game !';
-            let metrics = cxt.measureText(txt);
-            cxt.fillText(txt, Math.floor((MAX_WIDTH - metrics.width) / 2), (Math.floor(MAX_HEIGHT / CELL_SIZE / 2) + 3) * CELL_SIZE, MAX_WIDTH);
-            handleKeyDown();
-        }
-    }
+    });
+}
+
+function gameOver() {
+    cxt.font = '32px serif';
+    let txt = 'Game Over ! Press Enter To Start !';
+    let metrics = cxt.measureText(txt);
+    cxt.fillText(txt, Math.floor((MAX_WIDTH - metrics.width) / 2), Math.floor(MAX_HEIGHT / CELL_SIZE / 2) * CELL_SIZE, MAX_WIDTH);
 }
 
 function handleKeyDown() {
@@ -391,9 +393,13 @@ function handleKeyDown() {
                 opening = false;
                 startGame();
             }
+        } else if (over) {
+            if (keyCode === 13) {
+                startGame();
+                run();
+            }
         } else {
             code = keyCode;
         }
-        console.log(code);
     });
 }

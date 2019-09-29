@@ -5,22 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>Snake</title>
+    <link rel="manifest" href="./manifest.json">
     <style type="text/css">
     .wrapper {
-        /*width: 800px;*/
-        /*height: 800px;*/
-        /*border: 1px dashed #e3e3e3;*/
         margin: 50px 0 0 50px;
         padding: 10px 10px;
-    }
-    .again{
-        display: flex;
-        flex-direction: column;
-        width: 800px;
-    }
-    canvas{
-        /*border: 1px dashed #333;*/
     }
     </style>
 </head>
@@ -29,6 +19,17 @@
     <div class="wrapper">
         <canvas id="box" width="751" height="751"></canvas>
     </div>
+    <script type="text/javascript">
+    if (navigator.serviceWorker) {
+        navigator.serviceWorker.register('/sw.js')
+            .then(registartion => {
+                console.log('sw register success !' + registartion.scope);
+            })
+            .catch(err => {
+                console.log('sw register failed !');
+            });
+    }
+    </script>
     <script src="./snake.js"></script>
 </body>
 
