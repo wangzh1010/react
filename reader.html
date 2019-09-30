@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+
+    <input type="file" name="" onchange="readFile(this)">
+
+    <div id="content"></div>
+    <div id="inner"></div>
+
+    <script type="text/javascript">
+        function readFile(self){
+            let reader = new FileReader();
+            reader.onload = function(e){
+                console.log(e.target.result)
+                document.getElementById('content').textContent = e.target.result;
+                document.getElementById('inner').innerText = e.target.result;
+            }
+            reader.readAsText(self.files[0])
+        }
+    </script>
+
+</body>
+</html>
