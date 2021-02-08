@@ -1,0 +1,50 @@
+.new-year-decorate .unlock-wrapper {
+    width: 620px;
+    height: 82px;
+    text-align: center;
+    position: relative;
+}
+
+.new-year-decorate .unlock-wrapper:after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 62px;
+    height: 62px;
+    background: url(./images/member.png) no-repeat center;
+}
+
+.new-year-decorate .operation-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.new-year-decorate .operation-layer .unlock-btn {
+    display: block;
+    color: #fff;
+    width: 147px;
+    height: 34px;
+    margin: 24px auto;
+    line-height: 34px;
+    border-radius: 3px;
+    background-image: linear-gradient(-21deg, #dc1010 0%, #f25757 100%), linear-gradient(#ffb400, #ffb400);
+}
+
+.new-year-decorate .operation-layer .unlock-btn:hover {
+    background-image: linear-gradient(-21deg, #b70000 0%, #e40909 100%), linear-gradient(#ffb400, #ffb400);
+}
+
+.new-year-decorate .operation-layer .unlock-btn:after {
+    content: '';
+    width: 21px;
+    height: 14px;
+    margin-left: 5px;
+    vertical-align: -2px;
+    display: inline-block;
+    background: url(./images/icon_new.png) no-repeat center;
+}
