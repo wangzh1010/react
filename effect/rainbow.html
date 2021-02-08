@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>rainbow</title>
+    <style>
+        .rainbow{
+            width: 200px;
+            height: 200px;
+            border-radius: 100%;
+            box-shadow:
+                0 0 0 5px red inset,
+                0 0 0 10px orange inset,
+                0 0 0 15px yellow inset,
+                0 0 0 20px lime inset,
+                0 0 0 25px aqua inset,
+                0 0 0 30px blue inset,
+                0 0 0 35px magenta inset;
+            clip-path:polygon(0 0,100% 0,100% 50%,0 50%);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="rainbow"></div>
+
+</body>
+</html>

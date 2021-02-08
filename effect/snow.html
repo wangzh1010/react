@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title></title>
+    <style type="text/css">
+    .snow {
+        display: block;
+        width: 101px;
+        height: 101px;
+        position: absolute;
+        animation: fall 25s ease-out 0s infinite;
+        --webkit-animation: fall 0.3s ease 0s infinite;
+    }
+
+    @keyframes fall {
+        from {
+            transform: translateY(-100px) rotate(0deg);
+        }
+
+        to {
+            transform: translateY(2000px) rotate(720deg);
+        }
+    }
+
+    @-webkit-keyframes fall {
+        from {
+            transform: translateY(-100px) rotate(0deg);
+        }
+
+        to {
+            transform: translateY(1000px) rotate(720deg);
+        }
+    }
+
+    .snow i {
+        position: absolute;
+        left: 0;
+        top: 50px;
+        width: 100%;
+        height: 1px;
+        background-color: #3f51b5;
+    }
+
+    .snow i::before,
+    .snow i::after {
+        content: '';
+        position: absolute;
+        top: -6px;
+        width: 11px;
+        height: 11px;
+        transform: rotate(45deg);
+    }
+
+    .snow i::before {
+        left: 0;
+        border-top: 1px solid #3f51b5;
+        border-right: 1px solid #3f51b5;
+    }
+
+    .snow i::after {
+        right: 0;
+        border-bottom: 1px solid #3f51b5;
+        border-left: 1px solid #3f51b5;
+    }
+
+    .snow .angle_1 {
+        transform: rotate(15deg);
+    }
+
+    .snow .angle_2 {
+        transform: rotate(75deg);
+    }
+
+    .snow .angle_3 {
+        transform: rotate(135deg);
+    }
+    </style>
+</head>
+
+<body>
+    <div class="snow">
+        <i class="angle_1"></i>
+        <i class="angle_2"></i>
+        <i class="angle_3"></i>
+    </div>
+    <script type="text/javascript">
+    let timestamp = Date.now();
+    let snows = [];
+    let timer = setInterval(() => {
+        if (Date.now() - timestamp > 10 * 1000) {
+            clearInterval(timer);
+            timer = null;
+            snows[snows.length - 1].addEventListener('webkitAnimationStart', () => {
+                console.log(1)
+            });
+            snows[snows.length - 1].addEventListener("webkitAnimationIteration", function() {
+                console.log("动画重复运动");
+            })
+            snows[snows.length - 1].addEventListener('webkitAnimationEnd', () => {
+                snows.forEach(snow => document.body.removeChild(snow));
+            })
+            return;
+        }
+
+        let elem = document.createElement('div');
+        elem.setAttribute('class', 'snow');
+        elem.innerHTML = '<i class="angle_1"></i><i class="angle_2"></i><i class="angle_3"></i>';
+        let size = Math.round(Math.random() * 10 + 50) + 'px';
+        elem.style.width = size;
+        elem.style.height = size;
+        let x = Math.round(Math.random() * document.body.clientWidth) + 'px';
+        elem.style.left = x;
+        elem.style.top = '-100px';
+        document.body.appendChild(elem);
+        snows.push(elem);
+    }, 2000);
+    </script>
+</body>
+
+</html>

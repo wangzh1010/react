@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>circling_motion</title>
+    <style>
+        .circle{
+            width: 300px;
+            height: 300px;
+            border: 1px solid plum;
+            border-radius: 100%;
+            position: relative;
+            margin: 100px 0 0 100px;
+        }
+        .plant{
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            /* animation: move 8s linear infinite; */
+        }
+
+        @keyframes move{
+            0%,100%{transform: translate(25px);}
+            25%,75%{transform: translate(0px);}
+            50%{transform: translate(-25px);}
+        }
+
+        .plant i{
+            width: 20px;
+            height: 20px;
+            /* margin: -50%; */
+            background-color: aquamarine;
+            border-radius: 100%;
+            position: absolute;
+            animation: rotate 8s linear infinite;
+        }
+        @keyframes rotate{
+            0%{
+                transform: rotate(0deg) translate(150px);
+            }
+            100%{
+                transform: rotate(360deg) translate(150px);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="circle">
+        <div class="plant">
+            <i></i>
+        </div>
+    </div>
+
+</body>
+</html>
