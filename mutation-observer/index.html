@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>MutationObserver</title>
+    <style type="text/css">
+    #foo {
+        width: 100px;
+        height: 100px;
+        border: 1px solid #ccc;
+    }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div id="foo" data-foo="foo">1<div id="goo">child</div>
+        </div>
+        <button id="btn1">属性变化</button>
+        <button id="btn2">数据变化</button>
+        <button id="btn3">子节点变化</button>
+        <button id="btn4">所有节点变化</button>
+    </div>
+    <script type="text/javascript">
+    var foo = document.getElementById('foo');
+    var goo = document.getElementById('goo');
+    // 修改属性
+    document.getElementById('btn1').addEventListener('click', function() {
+        foo.dataset.foo = 'koo';
+    });
+    // 修改节点内容数据
+    document.getElementById('btn2').addEventListener('click', function() {
+        var node = foo.childNodes[0];
+        node.textContent = '2';
+    })
+    // 添加子节点
+    document.getElementById('btn3').addEventListener('click', function() {
+        var elem = document.createTextNode('textNode');
+        foo.appendChild(elem);
+    })
+    // 子节点添加节点
+    document.getElementById('btn4').addEventListener('click', function() {
+        var elem = document.createTextNode('subTextNode');
+        goo.appendChild(elem);
+    })
+    var callback = function(mutationList, observer) {
+        console.log(mutationList)
+    }
+    var observer = new MutationObserver(callback);
+    observer.observe(foo, {
+        attributes: true,
+        childList: true,
+        characterData: true,
+        subtree: true,
+        // attributeFilter: ['custom']
+    })
+    </script>
+</body>
+
+</html>
